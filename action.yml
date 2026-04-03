@@ -1,0 +1,82 @@
+name: "Testwise"
+description: "LLM-powered test selection — intelligently run only the tests that matter"
+branding:
+  icon: "check-circle"
+  color: "green"
+
+inputs:
+  config-path:
+    description: "Path to .testwise.yml config file"
+    required: false
+    default: ".testwise.yml"
+  llm-model:
+    description: "LLM model override (e.g., anthropic/claude-sonnet-4-20250514)"
+    required: false
+  api-key:
+    description: "LLM API key (prefer using secrets)"
+    required: false
+  base-ref:
+    description: "Base git ref to diff against (auto-detected if omitted)"
+    required: false
+  run-level:
+    description: "Minimum test classification to run: must_run, should_run, or all"
+    required: false
+    default: "should_run"
+  dry-run:
+    description: "Show selections without running tests"
+    required: false
+    default: "false"
+  fallback:
+    description: "Skip LLM and run all tests"
+    required: false
+    default: "false"
+  python-version:
+    description: "Python version to use"
+    required: false
+    default: "3.12"
+
+outputs:
+  tests-run:
+    description: "Number of tests executed"
+    value: ${{ steps.run.outputs.tests_run }}
+  tests-passed:
+    description: "Number of tests that passed"
+    value: ${{ steps.run.outputs.tests_passed }}
+  tests-failed:
+    description: "Number of tests that failed"
+    value: ${{ steps.run.outputs.tests_failed }}
+  tests-skipped:
+    description: "Number of tests skipped by LLM"
+    value: ${{ steps.run.outputs.tests_skipped }}
+  fallback-triggered:
+    description: "Whether the full fallback was used"
+    value: ${{ steps.run.outputs.fallback_triggered }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install testwise
+      shell: bash
+      run: pip install "${{ github.action_path }}"
+
+    - name: Run testwise
+      id: run
+      shell: bash
+      env:
+        TESTWISE_CONFIG: ${{ inputs.config-path }}
+        TESTWISE_LLM_MODEL: ${{ inputs.llm-model }}
+        TESTWISE_API_KEY: ${{ inputs.api-key }}
+      run: |
+        testwise \
+          --config "$TESTWISE_CONFIG" \
+          --output github \
+          --output-file "$RUNNER_TEMP/testwise-report.json" \
+          --run-level "${{ inputs.run-level }}" \
+          ${{ inputs.base-ref && format('--base-ref {0}', inputs.base-ref) || '' }} \
+          ${{ inputs.dry-run == 'true' && '--dry-run' || '' }} \
+          ${{ inputs.fallback == 'true' && '--fallback' || '' }}

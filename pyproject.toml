@@ -1,0 +1,68 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "testwise"
+version = "0.1.0"
+description = "LLM-powered test selection for CI/CD pipelines"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Matthew Frautnick" },
+]
+keywords = ["testing", "ci", "cd", "llm", "ai", "test-selection"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Testing",
+]
+dependencies = [
+    "litellm>=1.40.0",
+    "pydantic>=2.0",
+    "click>=8.0",
+    "pyyaml>=6.0",
+    "tiktoken>=0.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-mock",
+    "pytest-cov",
+    "ruff",
+    "mypy",
+]
+
+[project.scripts]
+testwise = "testwise.cli:main"
+
+[project.entry-points."testwise.parsers"]
+pytest = "testwise.parsers.pytest_parser:PytestParser"
+generic = "testwise.parsers.generic_parser:GenericParser"
+
+[project.urls]
+Homepage = "https://github.com/mfrautnick/testwise"
+Repository = "https://github.com/mfrautnick/testwise"
+Issues = "https://github.com/mfrautnick/testwise/issues"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true

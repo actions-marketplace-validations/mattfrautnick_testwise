@@ -1,0 +1,54 @@
+# Testwise Configuration
+# Copy this file to .testwise.yml in your repo root
+
+runners:
+  # Python/pytest example
+  - name: pytest
+    command: pytest
+    args: ["-v", "--tb=short"]
+    test_patterns: ["tests/**/*.py", "test_*.py", "*_test.py"]
+    parser: pytest           # Use the built-in pytest parser for test-level selection
+    select_mode: test        # "test" for individual test functions, "file" for file-level
+    timeout_seconds: 300
+
+  # JavaScript/Jest example (uncomment to use)
+  # - name: jest
+  #   command: npx jest
+  #   args: ["--verbose"]
+  #   test_patterns: ["**/*.test.ts", "**/*.test.js", "**/*.spec.ts", "**/*.spec.js"]
+  #   parser: generic        # No built-in JS parser yet (file-level selection)
+  #   select_mode: file
+  #   file_arg_style: flag
+  #   file_arg_flag: "--testPathPattern"
+  #   timeout_seconds: 300
+
+  # Go example (uncomment to use)
+  # - name: gotest
+  #   command: go
+  #   args: ["test", "-v"]
+  #   test_patterns: ["**/*_test.go"]
+  #   parser: generic
+  #   select_mode: file
+  #   file_arg_style: none
+  #   timeout_seconds: 300
+
+# LLM configuration
+llm:
+  model: anthropic/claude-sonnet-4-20250514   # Any model supported by litellm
+  api_key_env: ANTHROPIC_API_KEY              # Environment variable containing the API key
+  max_context_tokens: 100000                  # Token budget for context
+  temperature: 0.0                            # Keep deterministic
+  timeout_seconds: 60
+
+# Context assembly
+context:
+  include_test_contents: true    # Send test file contents to LLM (more accurate, more tokens)
+  max_diff_lines: 5000           # Truncate diffs larger than this
+
+# Safety
+fallback_on_error: true    # Run all tests if LLM fails
+run_should_run: true       # Also run "should_run" tests (not just "must_run")
+
+# Optional: filter which files are analyzed
+# include_patterns: ["src/**", "lib/**"]
+# exclude_patterns: ["**/*.md", "docs/**"]
