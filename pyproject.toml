@@ -54,6 +54,9 @@ Homepage = "https://github.com/mattfrautnick/testwise"
 Repository = "https://github.com/mattfrautnick/testwise"
 Issues = "https://github.com/mattfrautnick/testwise/issues"
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/testwise"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py310"
